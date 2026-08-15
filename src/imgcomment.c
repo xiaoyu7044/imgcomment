@@ -2,7 +2,7 @@
  * ImgComment.exe — Excel 图片批注工具 (v1.0)
  *
  * Compile:
- *   x86_64-w64-mingw32-gcc -o ImgComment.exe imgcomment.c icon_res.o \
+ *   cd src && x86_64-w64-mingw32-gcc -o ../ImgComment.exe imgcomment.c icon_res.o \
  *       -lole32 -loleaut32 -luuid -lgdi32 -lgdiplus -lcomdlg32 -lshell32 \
  *       -lcomctl32 -static-libgcc -Os -s -mwindows
  */
