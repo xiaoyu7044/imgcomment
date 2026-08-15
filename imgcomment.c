@@ -145,8 +145,7 @@ static void show_help(void){
         L"1️⃣ 选中 Excel 单元格\n"
         L"2️⃣ 点击「插入」选择图片\n"
         L"   或「粘贴」从剪贴板粘贴\n\n"
-        L"⚠ Excel→文件→选项→常规→取消「新式批注」\n\n"
-        L"官网: https://github.com/xiaoyu7044/imgcomment",
+        L"⚠ Excel→文件→选项→常规→取消「新式批注」\n\n",
         L"ImgComment · 帮助",MB_OK|MB_ICONINFORMATION);
 }
 
