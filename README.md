@@ -35,11 +35,10 @@ ImgComment 是一款 Windows 桌面小工具，可以在 Excel 单元格中**快
 ├─────────────────────────────────┤
 │ 📷  插入 / Insert               │
 │ 📋  粘贴 / Paste                │
-│ 🗑  删除 / Delete               │
 │ ℹ   帮助 / Help                 │
 │ ✕   退出 / Exit                 │
 │─────────────────────────────────│
-│    https://mc.mcgg.cc           │  ← 蓝色可点击链接
+│    https://github.com/xiaoyu7044/imgcomment           │  ← 蓝色可点击链接
 └─────────────────────────────────┘
 ```
 
@@ -82,15 +81,6 @@ ImgComment 是一款 Windows 桌面小工具，可以在 Excel 单元格中**快
 
 ---
 
-### 🗑 删除 / Delete
-
-**作用：** 删除当前选中单元格的批注（含图片）
-
-**操作：**
-1. 在 Excel 中点选一个单元格
-2. 点击「🗑 删除 / Delete」按钮
-
----
 
 ### ℹ 帮助 / Help
 
@@ -114,7 +104,7 @@ ImgComment 是一款 Windows 桌面小工具，可以在 Excel 单元格中**快
 
 ### 官网链接
 
-窗口最底部有蓝色 `https://mc.mcgg.cc` 链接
+窗口最底部有蓝色 `https://github.com/xiaoyu7044/imgcomment` 链接
 
 - 鼠标移上变成**手型**
 - 点击直接打开浏览器跳转到官网
@@ -168,7 +158,7 @@ A：插图片不需要。只有点击「帮助」或底部官网链接时才需�
 
 ```
 软件名称：ImgComment
-版本号：  v1.0
+版本号：  v1.1
 功能：    Excel 图片批注工具
 官网：    https://github.com/xiaoyu7044/imgcomment
 ```

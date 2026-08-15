@@ -1,8 +1,8 @@
 /*
- * ImgComment.exe — Excel 图片批注工具 (v7 final)
+ * ImgComment.exe — Excel 图片批注工具 (v1.0)
  *
  * Compile:
- *   x86_64-w64-mingw32-gcc -o ImgComment.exe imgcomment_v7.c icon_res.o \
+ *   x86_64-w64-mingw32-gcc -o ImgComment.exe imgcomment.c icon_res.o \
  *       -lole32 -loleaut32 -luuid -lgdi32 -lgdiplus -lcomdlg32 -lshell32 \
  *       -lcomctl32 -static-libgcc -Os -s -mwindows
  */
@@ -135,15 +135,6 @@ static int x_paste(void){
     free(d);ReleaseDC(NULL,dc);int r2=x_ins(t);DeleteFileW(t);return r2;
 }
 
-static void x_del(void){
-    if(!xci())return;
-    VARIANT c;VariantInit(&c);XG(g_xl,L"ActiveCell",&c);
-    if(c.vt!=VT_DISPATCH||!c.pdispVal){msg(L"请先在 Excel 中选中一个单元格\nPlease select a cell first.",L"提示 / Notice");return;}
-    VARIANT m;VariantInit(&m);XG(c.pdispVal,L"Comment",&m);
-    if(m.vt==VT_DISPATCH&&m.pdispVal){XM(m.pdispVal,L"Delete");m.pdispVal->lpVtbl->Release(m.pdispVal);}
-    else{msg(L"当前单元格没有批注\nNo comment found.",L"提示 / Notice");if(c.pdispVal)c.pdispVal->lpVtbl->Release(c.pdispVal);return;}
-    if(c.pdispVal)c.pdispVal->lpVtbl->Release(c.pdispVal);
-}
 
 /* ============================================================== */
 /*  Help                                                          */
@@ -153,10 +144,9 @@ static void show_help(void){
         L"📖 ImgComment 使用帮助\n\n"
         L"1️⃣ 选中 Excel 单元格\n"
         L"2️⃣ 点击「插入」选择图片\n"
-        L"   或「粘贴」从剪贴板粘贴\n"
-        L"3️⃣ 点击「删除」清除批注\n\n"
+        L"   或「粘贴」从剪贴板粘贴\n\n"
         L"⚠ Excel→文件→选项→常规→取消「新式批注」\n\n"
-        L"官网: https://mc.mcgg.cc",
+        L"官网: https://github.com/xiaoyu7044/imgcomment",
         L"ImgComment · 帮助",MB_OK|MB_ICONINFORMATION);
 }
 
@@ -179,15 +169,14 @@ static void mkfnt(void){
 
 #define BN_INS 301
 #define BN_PST 302
-#define BN_DEL 303
 #define BN_INF 304
 #define BN_EXT 305
 #define BN_LNK 306
 
-static const WCHAR *B[]={L"📷  插入 / Insert",L"📋  粘贴 / Paste",L"🗑  删除 / Delete",L"ℹ   帮助 / Help",L"✕   退出 / Exit"};
-static int    BID[]={BN_INS,BN_PST,BN_DEL,BN_INF,BN_EXT};
-static COLORREF BCLR[]={RGB(75,130,220),RGB(75,130,220),RGB(200,80,80),RGB(130,140,155),RGB(170,120,110)};
-static COLORREF BHVR[]={RGB(95,150,240),RGB(95,150,240),RGB(220,100,100),RGB(150,160,175),RGB(190,140,130)};
+static const WCHAR *B[]={L"📷  插入 / Insert",L"📋  粘贴 / Paste",L"ℹ   帮助 / Help",L"✕   退出 / Exit"};
+static int    BID[]={BN_INS,BN_PST,BN_INF,BN_EXT};
+static COLORREF BCLR[]={RGB(75,130,220),RGB(75,130,220),RGB(130,140,155),RGB(170,120,110)};
+static COLORREF BHVR[]={RGB(95,150,240),RGB(95,150,240),RGB(150,160,175),RGB(190,140,130)};
 #define BH 32
 #define BG 6
 
@@ -200,12 +189,12 @@ static LRESULT CALLBACK WndProc(HWND h,UINT m,WPARAM w,LPARAM l)
     switch(m){
     case WM_CREATE:{
         mkfnt();HWND p=h;int y=10;
-        for(int i=0;i<5;i++){
+        for(int i=0;i<4;i++){
             CreateWindowW(L"BUTTON",B[i],WS_VISIBLE|WS_CHILD|BS_OWNERDRAW,10,y,200,BH,p,(HMENU)(INT_PTR)BID[i],g_hInst,NULL);
             if(g_fnt)SendMessageW(GetDlgItem(p,BID[i]),WM_SETFONT,(WPARAM)g_fnt,TRUE);y+=BH+BG;
         }
         y+=2;CreateWindowW(L"STATIC",L"",WS_VISIBLE|WS_CHILD|SS_ETCHEDHORZ,10,y,200,2,p,NULL,NULL,NULL);y+=8;
-        HWND hl=CreateWindowW(L"STATIC",L"https://mc.mcgg.cc",WS_VISIBLE|WS_CHILD|SS_NOTIFY|SS_CENTER,10,y,200,18,p,(HMENU)(INT_PTR)BN_LNK,g_hInst,NULL);
+        HWND hl=CreateWindowW(L"STATIC",L"https://github.com/xiaoyu7044/imgcomment",WS_VISIBLE|WS_CHILD|SS_NOTIFY|SS_CENTER,10,y,200,18,p,(HMENU)(INT_PTR)BN_LNK,g_hInst,NULL);
         if(g_fnt)SendMessageW(hl,WM_SETFONT,(WPARAM)g_fnt,TRUE);return 0;
     }
     case WM_CTLCOLORSTATIC:{
@@ -220,7 +209,7 @@ static LRESULT CALLBACK WndProc(HWND h,UINT m,WPARAM w,LPARAM l)
     }
     case WM_DRAWITEM:{
         LPDRAWITEMSTRUCT is=(LPDRAWITEMSTRUCT)l;int idx=-1;
-        for(int j=0;j<5;j++)if(BID[j]==is->CtlID){idx=j;break;}
+        for(int j=0;j<4;j++)if(BID[j]==is->CtlID){idx=j;break;}
         if(idx<0)return TRUE;
         BOOL hv=(hover==is->CtlID);COLORREF bg=hv?BHVR[idx]:BCLR[idx];
         draw_round_rect(is->hDC,&is->rcItem,bg,4);
@@ -230,8 +219,8 @@ static LRESULT CALLBACK WndProc(HWND h,UINT m,WPARAM w,LPARAM l)
     }
     case WM_MOUSEMOVE:{
         POINT pt={LOWORD(l),HIWORD(l)};HWND c=ChildWindowFromPoint(h,pt);int nh=-1;
-        if(c){int id=GetDlgCtrlID(c);for(int j=0;j<5;j++)if(BID[j]==id){nh=id;break;}}
-        if(nh!=hover){hover=nh;for(int j=0;j<5;j++){HWND b=GetDlgItem(h,BID[j]);if(b)InvalidateRect(b,NULL,TRUE);}}
+        if(c){int id=GetDlgCtrlID(c);for(int j=0;j<4;j++)if(BID[j]==id){nh=id;break;}}
+        if(nh!=hover){hover=nh;for(int j=0;j<4;j++){HWND b=GetDlgItem(h,BID[j]);if(b)InvalidateRect(b,NULL,TRUE);}}
         return 0;
     }
     case WM_COMMAND:
@@ -244,9 +233,8 @@ static LRESULT CALLBACK WndProc(HWND h,UINT m,WPARAM w,LPARAM l)
             if(GetOpenFileNameW(&of))x_ins(p);return 0;
         }
         case BN_PST:x_paste();return 0;
-        case BN_DEL:x_del();return 0;
         case BN_INF:show_help();return 0;
-        case BN_LNK:ShellExecuteW(NULL,L"open",L"https://mc.mcgg.cc",NULL,NULL,SW_SHOW);return 0;
+        case BN_LNK:ShellExecuteW(NULL,L"open",L"https://github.com/xiaoyu7044/imgcomment",NULL,NULL,SW_SHOW);return 0;
         case BN_EXT:PostQuitMessage(0);return 0;
         }
         return 0;
@@ -267,7 +255,7 @@ int WINAPI WinMain(HINSTANCE h,HINSTANCE,LPSTR,int s)
     wc.hCursor=LoadCursorW(NULL,(LPCWSTR)IDC_ARROW);
     wc.hbrBackground=CreateSolidBrush(C_BG);wc.lpszClassName=L"ICV11";
     if(!RegisterClassW(&wc)){CoUninitialize();return 1;}
-    int W=220,H=10+5*(BH+BG)+2+8+22;RECT r={0,0,W,H};
+    int W=220,H=10+4*(BH+BG)+2+8+22;RECT r={0,0,W,H};
     AdjustWindowRectEx(&r,WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX,FALSE,WS_EX_TOPMOST);
     HWND hw=CreateWindowExW(WS_EX_TOPMOST,L"ICV11",L"ImgComment · Excel 图片批注工具",
         WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU|WS_VISIBLE|WS_MINIMIZEBOX,
